@@ -1,4 +1,4 @@
 pyobmenugenerator
 =================
 
-Simple pipe menu generator for Open
+Simple pipe menu generator for OpenBox
