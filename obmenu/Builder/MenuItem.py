@@ -8,4 +8,3 @@ def make(root, name, pathToExec, iconPath=None):
     actionElement = SubElement(itemElement, 'action', {'name': 'Execute'})
     executeElement = SubElement(actionElement, 'execute')
     executeElement.text = pathToExec
-    return itemElement

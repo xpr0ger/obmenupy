@@ -13,8 +13,8 @@ def make(root, paths):
     applicationElements = {}
 
     for desktopEntryPath in __getDesktopFileList(paths):
-        desktopEntry = DesktopEntry.DesktopEntry(desktopEntryPath)
-        categories = [category for category in desktopEntry.getCategories()
+        info = __getItemInfo(desktopEntryPath)
+        categories = [category for category in info['categories']
                       if category not in Ignore.list]
         for category in categories:
             if category not in applicationElements:
@@ -23,9 +23,7 @@ def make(root, paths):
                                                            {"id": category,
                                                             "icon": "",
                                                             "label": categoryName})
-            iconPath = IconTheme.getIconPath(desktopEntry.getIcon(), 32, Config.icon_theme)
-            MenuItem.make(applicationElements[category], desktopEntry.getName(), desktopEntry.getExec(),
-                          iconPath)
+            MenuItem.make(applicationElements[category], info['name'], info['exec'], info['iconPath'])
 
 
 def __getDesktopFileList(paths):
@@ -35,3 +33,13 @@ def __getDesktopFileList(paths):
         desktopEntries += [desktopEntriesPath + desktopEntry for desktopEntry in listdir(desktopEntriesPath)
                            if re.match(regexp, desktopEntry)]
     return desktopEntries
+
+
+def __getItemInfo(desktopEntryPath):
+    desktopEntry = DesktopEntry.DesktopEntry(desktopEntryPath)
+    return {
+        'categories': desktopEntry.getCategories(),
+        'name': desktopEntry.getName(),
+        'exec': desktopEntry.getExec(),
+        'iconPath': IconTheme.getIconPath(desktopEntry.getIcon(), 32, Config.icon_theme)
+    }
