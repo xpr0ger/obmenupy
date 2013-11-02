@@ -1,4 +1,5 @@
-from os import environ
+from xdg.BaseDirectory import xdg_data_dirs
+from os import path
 from xml.etree.ElementTree import Element, SubElement, tostring
 from obmenu.Config import DefaultMenu
 from obmenu.Builder import Separator
@@ -6,12 +7,10 @@ from obmenu.Builder import Applications
 from obmenu.Config import ExitMenu
 from obmenu.Builder import MenuItems
 
-homeDir = environ['HOME']
-xdgPathPart = 'share/applications/'
 
 #Основные пути для поиска приложений:
-desktopEntryPaths = ['/usr/' + xdgPathPart, homeDir + '/.local/' + xdgPathPart]
-
+desktopEntryPaths = [pathPart + '/applications/' for pathPart in xdg_data_dirs
+                     if path.isdir(pathPart + '/applications/')]
 
 menuRoot = Element("openbox_pipe_menu")
 MenuItems.make(menuRoot, DefaultMenu.list)
