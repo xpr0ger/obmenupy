@@ -39,12 +39,15 @@ def __getDesktopFileList(paths):
     return desktopEntries
 
 
-def __getItemInfo(desktopEntryPath):
+def __getItemInfo(desktopEntryPath, compiledRegexp):
     desktopEntry = DesktopEntry.DesktopEntry(desktopEntryPath)
+    execCommand = desktopEntry.getExec()
+    matchResult = re.match(compiledRegexp, execCommand)
+    execCommand = execCommand if matchResult is None else matchResult.groups()[0]
     return {
         'categories': desktopEntry.getCategories(),
         'name': desktopEntry.getName(),
-        'exec': desktopEntry.getExec(),
+        'exec': execCommand,
         'iconPath': IconTheme.getIconPath(desktopEntry.getIcon(), 32, Config.icon_theme)
     }
 
@@ -68,6 +71,8 @@ def __saveToCache(cacheName, info):
 def __getDesktopEntriesInformation(paths):
     fileList = __getDesktopFileList(paths)
     desktopEntriesInfo = __loadFromCache(md5(''.join(fileList).encode()).hexdigest())
-    desktopEntriesInfo = desktopEntriesInfo or [__getItemInfo(desktopEntryPath) for desktopEntryPath in fileList]
+    desktopExecRegExp = re.compile('(.+?)\s%.+')
+    desktopEntriesInfo = desktopEntriesInfo or [__getItemInfo(desktopEntryPath, desktopExecRegExp) for desktopEntryPath
+                                                in fileList]
     __saveToCache(md5(''.join(fileList).encode()).hexdigest(), desktopEntriesInfo)
     return desktopEntriesInfo
