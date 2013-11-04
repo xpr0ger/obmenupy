@@ -1,6 +1,5 @@
 def main():
     import gettext
-    import json
     from os import path
     basePath = path.dirname(path.realpath(__file__))
     gettext.install('obmenupy', basePath+'/locale')
