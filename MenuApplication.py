@@ -17,25 +17,49 @@ class MenuApplication(Application):
     def __init__(self, args):
         Application.__init__(self, args)
         paths = self.getConfigPaths()
-        self._configs = self.getConfigFiles(paths)
-        self._menuObj = json.load(open(self._configs['menu.cfg']))
-        print(self._menuObj)
-        exit()
-        self._desktopEntryPaths = [pathPart + '/applications/' for pathPart in xdg_data_dirs
-                                   if path.isdir(pathPart + '/applications/')]
+        self._config = self.getConfigFiles(paths)
+        self._menuObj = json.load(open(self._config['menu.cfg']))
+        #print(self._menuObj)
+        #self._desktopEntryPaths = [pathPart + '/applications/' for pathPart in xdg_data_dirs
+        #                           if path.isdir(pathPart + '/applications/')]
 
     def run(self):
         menuRoot = Element("openbox_pipe_menu")
-        if 'top_menu' in self._config and len(self._config['top_menu']):
-            self._makeMenuItems(menuRoot, self._config['top_menu'])
-            self._makeSeparatorItem(menuRoot)
-        self._makeApplicationMenu(menuRoot, self._desktopEntryPaths,
-                                  self._config['ignore_list'] if 'ignore_list' in self._config else {},
-                                  self._config['category_aliases'] if 'category_aliases' in self._config else {})
-        if 'bottom_menu' in self._config and len(self._config['bottom_menu']):
-            self._makeSeparatorItem(menuRoot)
-            self._makeMenuItems(menuRoot, self._config['bottom_menu'])
+        self._itemsMake(menuRoot, self._menuObj)
+        #if 'top_menu' in self._config and len(self._config['top_menu']):
+        #    self._makeMenuItems(menuRoot, self._config['top_menu'])
+        #    self._makeSeparatorItem(menuRoot)
+        #self._makeApplicationMenu(menuRoot, self._desktopEntryPaths,
+        #                          self._config['ignore_list'] if 'ignore_list' in self._config else {},
+        #                          self._config['category_aliases'] if 'category_aliases' in self._config else {})
+        #if 'bottom_menu' in self._config and len(self._config['bottom_menu']):
+        #    self._makeSeparatorItem(menuRoot)
+        #    self._makeMenuItems(menuRoot, self._config['bottom_menu'])
         return tostring(menuRoot).decode()
+
+    def _itemsMake(self, rootElem, cfgObject, elemId=None):
+        if 'name' in cfgObject and cfgObject['name'] is not None:
+            self._makeSeparatorItem(rootElem, cfgObject['name'])
+        items = {}
+        if type(cfgObject['items']) is dict:
+            items = cfgObject['items']
+        elif elemId is not None and elemId+'.cfg' in self._config:
+            items = json.load(open(self._config[elemId+'.cfg']))
+        for itemId in sorted(items.keys()):
+            item = items[itemId]
+            methodName = '_' + item['type'] + 'Make'
+            methodToExec = getattr(self, methodName)
+            try:
+                methodToExec(rootElem, item, itemId)
+            except AttributeError:
+                continue
+
+    def _separatorMake(self, rootElem, cfgObject, elemId=None):
+        name = cfgObject['name'] if 'name' in cfgObject else None
+        self._makeSeparatorItem(rootElem, name)
+
+    def _itemMake(self, rootElem, cfgObject, elemId=None):
+        self._makeMenuItem(rootElem, cfgObject['name'], cfgObject['exec'], cfgObject['icon'])
 
     def _makeMenuItem(self, root, name, pathToExec, iconPath=None):
         itemElement = SubElement(root, 'item', {'label': name})
