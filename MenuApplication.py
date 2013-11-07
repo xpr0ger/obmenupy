@@ -12,19 +12,15 @@ from hashlib import md5
 class MenuApplication(Application):
     _config = {}
     _desktopEntryPaths = {}
-    _configList = [
-        'bottom_menu.cfg',
-        'top_menu.cfg',
-        'ignore_list.cfg',
-        'category_aliases.cfg'
-    ]
+    _menuObj = {}
 
     def __init__(self, args):
         Application.__init__(self, args)
         paths = self.getConfigPaths()
-        configFiles = self.getConfigFiles(paths)
-        self._config = {fileName[:fileName.rfind('.')]: json.load(open(configFiles[fileName]))
-                        for fileName in configFiles}
+        self._configs = self.getConfigFiles(paths)
+        self._menuObj = json.load(open(self._configs['menu.cfg']))
+        print(self._menuObj)
+        exit()
         self._desktopEntryPaths = [pathPart + '/applications/' for pathPart in xdg_data_dirs
                                    if path.isdir(pathPart + '/applications/')]
 

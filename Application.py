@@ -39,8 +39,7 @@ class Application(object):
     def getConfigFiles(self, configPaths):
         files = {}
         for configPath in configPaths:
-            filesList = {filePath: configPath + '/' + filePath for filePath in listdir(configPath)
-                         if filePath in self._configList}
+            filesList = {filePath: configPath + '/' + filePath for filePath in listdir(configPath)}
             for key in filesList:
                 files[key] = filesList[key]
         return files
