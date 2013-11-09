@@ -1,5 +1,5 @@
 from sys import argv
-from MenuApplication import MenuApplication
+from lib import MenuApplication
 
 app = MenuApplication(argv)
 result = app.run()

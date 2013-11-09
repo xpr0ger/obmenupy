@@ -1,12 +1,13 @@
-from Application import Application
 import re
 import json
 from os import listdir
 from os import path
 from xml.etree.ElementTree import Element, SubElement, tostring
-from xdg import DesktopEntry, IconTheme, Config
-from xdg.BaseDirectory import xdg_data_dirs
 from hashlib import md5
+
+from xdg import DesktopEntry, IconTheme, Config
+
+from lib import Application
 
 
 class MenuApplication(Application):
@@ -45,6 +46,12 @@ class MenuApplication(Application):
             items = cfgObject['items']
         elif elemId is not None and elemId+'.cfg' in self._config:
             items = json.load(open(self._config[elemId+'.cfg']))
+        elif cfgObject['exec'] is not None and type(cfgObject['exec']) is dict:
+            moduleObj = __import__(cfgObject['exec']['module'], globals(), locals(), cfgObject['exec']['className'])
+            classObj = getattr(moduleObj, cfgObject['exec']['className'])
+            method = getattr(classObj, cfgObject['exec']['methodName'])
+            items = method(classObj)
+
         for itemId in sorted(items.keys()):
             item = items[itemId]
             methodName = '_' + item['type'] + 'Make'
