@@ -7,7 +7,7 @@ from hashlib import md5
 
 from xdg import DesktopEntry, IconTheme, Config
 
-from lib import Application
+from lib.Application import Application
 
 
 class MenuApplication(Application):
