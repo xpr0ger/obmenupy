@@ -7,7 +7,7 @@ class Application(object):
     _defaultArgs = {
         'configDir': '/etc/obmenupy',
         'homeConfigDir': environ['HOME'] + '/.config/obmenupy',
-        'cacheDirSuffix': 'menuCache',
+        'cacheDirSuffix': 'cache',
     }
     baseDir = None
     _args = None

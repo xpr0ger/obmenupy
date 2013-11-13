@@ -1,4 +1,5 @@
 import json
+from lib.Cache import Cache
 from xml.etree.ElementTree import Element, SubElement, tostring
 from lib.Application import Application
 
@@ -7,12 +8,14 @@ class MenuApplication(Application):
     _config = {}
     _desktopEntryPaths = {}
     _menuObj = {}
+    _cache = None
 
     def __init__(self, args):
         Application.__init__(self, args)
         paths = self.getConfigPaths()
         self._config = self.getConfigFiles(paths)
         self._menuObj = json.load(open(self._config['menu.cfg']))
+        self._cache = Cache(self.getArg('homeConfigDir') + '/' + self.getArg('cacheDirSuffix'))
 
     def run(self):
         menuRoot = Element("openbox_pipe_menu")
@@ -30,7 +33,7 @@ class MenuApplication(Application):
         elif cfgObject['exec'] is not None and type(cfgObject['exec']) is dict:
             moduleObj = __import__(cfgObject['exec']['module'], globals(), locals(), cfgObject['exec']['className'])
             classObj = getattr(moduleObj, cfgObject['exec']['className'])
-            classInstance = classObj(None, self._config)
+            classInstance = classObj(self._cache, self._config)
             method = getattr(classInstance, cfgObject['exec']['methodName'])
             items = method()
 

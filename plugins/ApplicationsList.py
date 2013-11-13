@@ -11,8 +11,12 @@ class ApplicationsList(object):
     _ignoreList = None
     _categoryAliases = None
     _desktopEntryPaths = None
+    _cacheKey = 'plugin.applications.list.json'
 
     def __init__(self, cache, config):
+        """
+        @type cache: lib.Cache.Cache
+        """
         self._desktopEntryPaths = [pathPart + '/applications/'
                                    for pathPart in xdg_data_dirs
                                    if path.isdir(pathPart + '/applications/')]
@@ -23,10 +27,16 @@ class ApplicationsList(object):
 
     def make(self):
         fileList = self._getDesktopFileList(self._desktopEntryPaths)
+        currentHash = ''.join(fileList)
+        cachedData = self._cache.read(self._cacheKey, self._cache.makeHash(currentHash))
+        if len(cachedData) > 0:
+            return cachedData
         desktopExecRegExp = re.compile('(.+?)\s%.+')
         desktopEntriesInfo = [self._getItemInfo(desktopEntryPath, desktopExecRegExp)
                               for desktopEntryPath in fileList]
-        return self._makeMenuCfg(desktopEntriesInfo)
+        menuObj = self._makeMenuCfg(desktopEntriesInfo)
+        self._cache.write(self._cacheKey, self._cache.makeHash(currentHash), menuObj)
+        return menuObj
 
     def _getDesktopFileList(self, paths):
         regexp = re.compile('.*?\.desktop$')

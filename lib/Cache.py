@@ -1,4 +1,6 @@
 import json
+from os.path import isdir
+from os import makedirs
 from hashlib import md5
 
 
@@ -7,19 +9,23 @@ class Cache(object):
 
     def __init__(self, path):
         self._path = path
+        if not isdir(path):
+            makedirs(path, 0o750)
 
-    def write(self, hashStr):
-        fullPath = self._path + '/' + hashStr
-        json.dump(open(fullPath, 'w'))
+    def write(self, key, hashStr, data):
+        fullPath = self._path + '/' + key
+        data = {'hash': hashStr, 'content': data}
+        json.dump(data, open(fullPath, 'w'))
 
-    def read(self, hashStr):
-        fullPath = self._path + '/' + hashStr
+    def read(self, key, hashStr):
+        fullPath = self._path + '/' + key
         try:
-            return json.load(open(fullPath))
-        except:
+            data = json.load(open(fullPath, 'r'))
+            return data['content'] if data['hash'] == hashStr else {}
+        except Exception as exc:
             return {}
 
     def makeHash(self, stringForHash):
-        hashObj = md5(stringForHash)
+        hashObj = md5(stringForHash.encode())
         hashStr = hashObj.hexdigest()
-        return hashStr.encode()
+        return hashStr
