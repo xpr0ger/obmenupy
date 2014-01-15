@@ -75,5 +75,7 @@ class MenuApplication(Application):
             separator.set('label', text)
 
     def _makeMenuItem(self, rootElem, elemId, name, icon):
-        attributes = {"id": elemId, "icon": icon or '', "label": name}
+        attributes = {"id": elemId,"label": name}
+        if icon:
+            attributes["icon"] = icon
         return SubElement(rootElem, "menu", attributes)
