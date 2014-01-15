@@ -2,6 +2,7 @@ import json
 from lib.Cache import Cache
 from xml.etree.ElementTree import Element, SubElement, tostring
 from lib.Application import Application
+from xdg import Config
 
 
 class MenuApplication(Application):
@@ -16,6 +17,11 @@ class MenuApplication(Application):
         self._config = self.getConfigFiles(paths)
         self._menuObj = json.load(open(self._config['menu.cfg']))
         self._cache = Cache(self.getArg('homeConfigDir') + '/' + self.getArg('cacheDirSuffix'))
+        self._initIconTheme(self.getArg('iconTheme'));
+
+    def _initIconTheme(self, iconTheme = None):
+        if not iconTheme is None:
+            Config.setIconTheme(iconTheme)
 
     def run(self):
         menuRoot = Element("openbox_pipe_menu")

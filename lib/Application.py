@@ -8,6 +8,7 @@ class Application(object):
         'configDir': '/etc/obmenupy',
         'homeConfigDir': environ['HOME'] + '/.config/obmenupy',
         'cacheDirSuffix': 'cache',
+        'iconTheme': None
     }
     baseDir = None
     _args = None
